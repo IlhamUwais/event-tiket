@@ -13,6 +13,7 @@ use Illuminate\Support\Str;
 use App\Models\Attende;
 use App\Models\OrderDetail;
 use App\Models\Orders;
+use App\Services\OrderCancellationService;
 
 class OrdersTable
 {
@@ -63,7 +64,14 @@ class OrdersTable
                     ]),
             ])
             ->recordActions([
-                ViewAction::make(),
+                ViewAction::make()
+                    ->extraModalFooterActions(fn (Orders $record): array => [
+                        Action::make('export_pdf')
+                            ->label('Export PDF')
+                            ->icon('heroicon-o-arrow-down-tray')
+                            ->color('gray')
+                            ->url(route('admin.orders.export-pdf', $record->id_order), shouldOpenInNewTab: true),
+                    ]),
 
                 Action::make('approve')
                     ->label('Approve')
@@ -119,6 +127,7 @@ class OrdersTable
                     ->action(function (Orders $record) {
                         DB::transaction(function () use ($record) {
                             $order = Orders::query()
+                                ->with('orderDetails')
                                 ->where('id_order', $record->id_order)
                                 ->lockForUpdate()
                                 ->firstOrFail();
@@ -126,6 +135,8 @@ class OrdersTable
                             if ($order->status === 'cancel') {
                                 return;
                             }
+
+                            app(OrderCancellationService::class)->releaseReservedInventory($order);
 
                             $order->update([
                                 'status' => 'cancel',

@@ -25,7 +25,6 @@ class ScanTicket extends Page
 
     protected string $view = 'filament.pages.scan-ticket';
 
-    public ?array $scanResult = null;
     public string $manualTicketCode = '';
 
     public function processScan(string $ticketCode): void
@@ -67,7 +66,6 @@ class ScanTicket extends Page
                 ->send();
 
             $this->manualTicketCode = '';
-            $this->scanResult = null;
             $this->dispatch('scan-ticket-reset');
 
             return;
@@ -81,7 +79,6 @@ class ScanTicket extends Page
                 ->send();
 
             $this->manualTicketCode = '';
-            $this->scanResult = $this->buildScanResult($attendee);
             $this->dispatch('scan-ticket-reset');
 
             return;
@@ -92,8 +89,6 @@ class ScanTicket extends Page
             'waktu_checkin' => now(),
         ]);
 
-        $attendee->refresh()->loadMissing(['orderDetail.tiket.event']);
-
         Notification::make()
             ->title('Check-in berhasil')
             ->body("Kode tiket {$ticketCode} berhasil diproses.")
@@ -101,22 +96,6 @@ class ScanTicket extends Page
             ->send();
 
         $this->manualTicketCode = '';
-        $this->scanResult = $this->buildScanResult($attendee);
         $this->dispatch('scan-ticket-reset');
     }
-
-    protected function buildScanResult(Attende $attendee): array
-    {
-        $event = $attendee->orderDetail?->tiket?->event;
-        $ticket = $attendee->orderDetail?->tiket;
-
-        return [
-            'kode_tiket' => $attendee->kode_tiket,
-            'nama_event' => $event?->nama_event ?? '-',
-            'nama_tiket' => $ticket?->nama_tiket ?? '-',
-            'tanggal_event' => $event?->tanggal_event?->format('d M Y') ?? '-',
-            'waktu_checkin' => $attendee->waktu_checkin?->format('d M Y H:i:s') ?? '-',
-        ];
-    }
 }
-

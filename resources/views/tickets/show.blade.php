@@ -7,13 +7,23 @@
                     <p class="mt-1 text-sm text-slate-600">Kode: <span class="font-medium">{{ $attende->kode_tiket }}</span></p>
                 </div>
 
-                <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium
-                    @class([
-                        'bg-slate-100 text-slate-800' => $attende->status === 'belum',
-                        'bg-emerald-100 text-emerald-800' => $attende->status === 'sudah',
-                    ])">
-                    {{ strtoupper($attende->status) }}
-                </span>
+                <div class="flex flex-wrap items-center gap-2 sm:justify-end">
+                    <a
+                        href="{{ route('tickets.print', $attende->kode_tiket) }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="inline-flex items-center rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-800 hover:bg-slate-50"
+                    >
+                        Cetak Tiket
+                    </a>
+                    <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-medium
+                        @class([
+                            'bg-slate-100 text-slate-800' => $attende->status === 'belum',
+                            'bg-emerald-100 text-emerald-800' => $attende->status === 'sudah',
+                        ])">
+                        {{ strtoupper($attende->status) }}
+                    </span>
+                </div>
             </div>
 
             <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 sm:items-center">

@@ -53,6 +53,7 @@ class EventForm
                     ->label('Gambar')
                     ->image()
                     ->imageEditor()
+                    ->disk('public')
                     ->directory('events')
                     ->required(),
             ]);

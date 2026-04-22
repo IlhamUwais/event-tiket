@@ -163,10 +163,10 @@ class CheckoutController extends Controller
 
             $order = Orders::create([
                 'id_user' => $request->user()->id_user,
-                'id_voucher' => $voucher?->id_voucher,
+                'id_voucher' => $voucher !== null ? $voucher->id_voucher : null,
                 'tanggal_order' => $now->toDateString(),
                 'total_price' => $total,
-                'discount' => $discount,
+                'discount' => (int) $discount,
                 'final_price' => $final,
                 'status' => 'pending',
                 'expired_at' => $now->addDay(),

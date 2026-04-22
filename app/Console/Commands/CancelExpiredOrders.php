@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Orders;
-use App\Models\Tiket;
+use App\Services\OrderCancellationService;
 use Carbon\CarbonImmutable;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -37,24 +37,7 @@ class CancelExpiredOrders extends Command
                     return;
                 }
 
-                $detailByTicket = $order->orderDetails
-                    ->groupBy('id_tiket')
-                    ->map(fn ($rows) => (int) $rows->sum('qty'));
-
-                if ($detailByTicket->isNotEmpty()) {
-                    $tickets = Tiket::query()
-                        ->whereIn('id_tiket', $detailByTicket->keys()->all())
-                        ->lockForUpdate()
-                        ->get()
-                        ->keyBy('id_tiket');
-
-                    foreach ($detailByTicket as $id_tiket => $qty) {
-                        $t = $tickets->get((int) $id_tiket);
-                        if ($t) {
-                            $t->increment('kuota', $qty);
-                        }
-                    }
-                }
+                app(OrderCancellationService::class)->releaseReservedInventory($order);
 
                 $order->update([
                     'status' => 'cancel',

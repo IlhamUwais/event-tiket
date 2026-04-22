@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Admin\OrderPdfController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\OrderController;
@@ -32,8 +33,14 @@ Route::middleware(['auth', 'role.user'])->group(function () {
     Route::get('/orders/{id_order}/pay', [OrderController::class, 'pay'])->name('orders.pay');
     Route::post('/orders/{id_order}/pay', [OrderController::class, 'payStore'])->name('orders.pay.store');
 
+    Route::get('/tickets/{kode_tiket}/print', [TicketController::class, 'print'])->name('tickets.print');
     Route::get('/tickets/{kode_tiket}', [TicketController::class, 'show'])->name('tickets.show');
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/admin/orders/{id_order}/export-pdf', OrderPdfController::class)
+        ->name('admin.orders.export-pdf');
 });

@@ -1,16 +1,21 @@
 <x-filament-panels::page>
-    <div
-        x-data="ticketScanner(@this)"
-        x-init="startScanner()"
-        class="space-y-6"
-    >
-        <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
+    <div class="space-y-6">
+        <div wire:ignore class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white">Scanner QR Tiket</h2>
             <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 Arahkan kamera ke QR tiket user. Kamera akan aktif otomatis.
             </p>
 
-            <div id="reader" class="mt-4 min-h-[300px] overflow-hidden rounded-lg border border-dashed border-gray-300 dark:border-gray-600"></div>
+            <div
+                x-data="ticketScanner(@this)"
+                x-init="startScanner()"
+                class="mt-4"
+            >
+                <div
+                    id="reader"
+                    class="min-h-[300px] overflow-hidden rounded-lg border border-dashed border-gray-300 dark:border-gray-600"
+                ></div>
+            </div>
         </div>
 
         <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-900">
@@ -41,35 +46,6 @@
                 </button>
             </form>
         </div>
-
-        @if ($scanResult)
-            <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm dark:border-emerald-800 dark:bg-emerald-950/30">
-                <h3 class="text-base font-semibold text-emerald-800 dark:text-emerald-200">Data Check-In</h3>
-
-                <dl class="mt-3 grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
-                    <div>
-                        <dt class="font-medium text-gray-600 dark:text-gray-300">Kode Tiket</dt>
-                        <dd class="text-gray-900 dark:text-white">{{ $scanResult['kode_tiket'] }}</dd>
-                    </div>
-                    <div>
-                        <dt class="font-medium text-gray-600 dark:text-gray-300">Nama Event</dt>
-                        <dd class="text-gray-900 dark:text-white">{{ $scanResult['nama_event'] }}</dd>
-                    </div>
-                    <div>
-                        <dt class="font-medium text-gray-600 dark:text-gray-300">Nama Tiket</dt>
-                        <dd class="text-gray-900 dark:text-white">{{ $scanResult['nama_tiket'] }}</dd>
-                    </div>
-                    <div>
-                        <dt class="font-medium text-gray-600 dark:text-gray-300">Tanggal Event</dt>
-                        <dd class="text-gray-900 dark:text-white">{{ $scanResult['tanggal_event'] }}</dd>
-                    </div>
-                    <div>
-                        <dt class="font-medium text-gray-600 dark:text-gray-300">Waktu Check-In</dt>
-                        <dd class="text-gray-900 dark:text-white">{{ $scanResult['waktu_checkin'] }}</dd>
-                    </div>
-                </dl>
-            </div>
-        @endif
     </div>
 
     @once
@@ -124,7 +100,8 @@
 
                                             setTimeout(() => {
                                                 this.lastCode = null;
-                                            }, 1500);
+                                                this.processing = false;
+                                            }, 1200);
                                         }
                                     );
 
@@ -142,4 +119,3 @@
         @endpush
     @endonce
 </x-filament-panels::page>
-

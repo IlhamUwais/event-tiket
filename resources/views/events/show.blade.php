@@ -1,17 +1,10 @@
 <x-layouts.app :title="$event->nama_event">
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div class="lg:col-span-2">
-            @php
-                $img = $event->gambar ?? null;
-                $imgUrl = $img
-                    ? (\Illuminate\Support\Str::startsWith($img, ['http://', 'https://']) ? $img : asset($img))
-                    : null;
-            @endphp
-
             <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
                 <div class="aspect-video bg-slate-100">
-                    @if ($imgUrl)
-                        <img src="{{ $imgUrl }}" alt="{{ $event->nama_event }}" class="h-full w-full object-cover">
+                    @if ($event->gambar_url)
+                        <img src="{{ $event->gambar_url }}" alt="{{ $event->nama_event }}" class="h-full w-full object-cover">
                     @else
                         <div class="h-full w-full flex items-center justify-center text-sm text-slate-500">No image</div>
                     @endif

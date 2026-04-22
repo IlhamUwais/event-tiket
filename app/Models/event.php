@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 
 class Event extends Model
@@ -38,5 +39,21 @@ class Event extends Model
     {
         return $this->hasMany(Tiket::class, 'id_event', 'id_event');
     }
+
+    /**
+     * URL publik untuk gambar event (FileUpload menyimpan path relatif ke disk public).
+     */
+    public function getGambarUrlAttribute(): ?string
+    {
+        $gambar = $this->gambar;
+        if ($gambar === null || $gambar === '') {
+            return null;
+        }
+
+        if (Str::startsWith($gambar, ['http://', 'https://'])) {
+            return $gambar;
+        }
+
+        return asset('storage/'.ltrim($gambar, '/'));
+    }
 }
-?>
