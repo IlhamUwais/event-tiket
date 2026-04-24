@@ -49,6 +49,13 @@ class EventForm
                     ->required()
                     ->seconds(false),
 
+                TextInput::make('limit_pembelian_per_user')
+                    ->label('Limit Pembelian per User')
+                    ->helperText('Maksimal total tiket yang bisa dibeli 1 user untuk event ini.')
+                    ->numeric()
+                    ->minValue(1)
+                    ->required(),
+
                 FileUpload::make('gambar')
                     ->label('Gambar')
                     ->image()

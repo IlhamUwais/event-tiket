@@ -6,6 +6,15 @@
                 <p class="mt-1 text-sm text-slate-600">
                     {{ $event->nama_event }} · {{ $event->tanggal_event?->format('d M Y') }}
                 </p>
+                @if ((int) ($event->limit_pembelian_per_user ?? 0) > 0)
+                    <p class="mt-2 text-sm text-slate-600">
+                        Limit pembelian event ini: <span class="font-medium">{{ (int) $event->limit_pembelian_per_user }}</span> tiket per user.
+                        @if ($remainingLimit !== null)
+                            Kamu sudah membeli <span class="font-medium">{{ (int) $purchasedQty }}</span> tiket, sisa jatah:
+                            <span class="font-medium">{{ (int) $remainingLimit }}</span>.
+                        @endif
+                    </p>
+                @endif
 
                 <form method="POST" action="{{ route('checkout.store', $event->id_event) }}" class="mt-6 space-y-5" id="checkoutForm">
                     @csrf

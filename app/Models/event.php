@@ -24,10 +24,12 @@ class Event extends Model
         'jam_mulai',
         'jam_selesai',
         'gambar',
+        'limit_pembelian_per_user',
     ];
 
     protected $casts = [
         'tanggal_event' => 'date',
+        'limit_pembelian_per_user' => 'integer',
     ];
 
     public function venue(): BelongsTo

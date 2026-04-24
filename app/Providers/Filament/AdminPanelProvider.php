@@ -11,6 +11,7 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use App\Filament\Widgets\AdminOverviewStats;
+use App\Filament\Widgets\ConfirmedPurchasesDayTable;
 use App\Filament\Widgets\EventQuotaTable;
 use App\Filament\Widgets\TopSellingEventsTable;
 use Filament\Widgets\AccountWidget;
@@ -43,6 +44,7 @@ class AdminPanelProvider extends PanelProvider
             ->widgets([
                 AdminOverviewStats::class,
                 TopSellingEventsTable::class,
+                ConfirmedPurchasesDayTable::class,
                 EventQuotaTable::class,
                 AccountWidget::class,
                 FilamentInfoWidget::class,

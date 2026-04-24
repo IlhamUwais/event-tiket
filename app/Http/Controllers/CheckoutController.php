@@ -11,6 +11,7 @@ use App\Models\voucher_usages;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class CheckoutController extends Controller
@@ -22,8 +23,25 @@ class CheckoutController extends Controller
             ->where('id_event', $id_event)
             ->firstOrFail();
 
+        $purchasedQty = 0;
+        $remainingLimit = null;
+
+        if (Auth::check() && (int) ($event->limit_pembelian_per_user ?? 0) > 0) {
+            $purchasedQty = (int) OrderDetail::query()
+                ->join('orders', 'orders.id_order', '=', 'order_details.id_order')
+                ->join('tikets', 'tikets.id_tiket', '=', 'order_details.id_tiket')
+                ->where('orders.id_user', Auth::user()->id_user)
+                ->where('tikets.id_event', $event->id_event)
+                ->whereIn('orders.status', ['pending', 'paid', 'confirm'])
+                ->sum('order_details.qty');
+
+            $remainingLimit = max(0, (int) $event->limit_pembelian_per_user - $purchasedQty);
+        }
+
         return view('checkout.create', [
             'event' => $event,
+            'purchasedQty' => $purchasedQty,
+            'remainingLimit' => $remainingLimit,
         ]);
     }
 
@@ -90,6 +108,30 @@ class CheckoutController extends Controller
             $event = Event::query()
                 ->where('id_event', $id_event)
                 ->firstOrFail();
+
+            $requestedQty = (int) $items->sum();
+            $userLimit = (int) ($event->limit_pembelian_per_user ?? 0);
+
+            if ($userLimit > 0) {
+                $alreadyPurchasedQty = (int) OrderDetail::query()
+                    ->join('orders', 'orders.id_order', '=', 'order_details.id_order')
+                    ->join('tikets', 'tikets.id_tiket', '=', 'order_details.id_tiket')
+                    ->where('orders.id_user', $request->user()->id_user)
+                    ->where('tikets.id_event', $event->id_event)
+                    ->whereIn('orders.status', ['pending', 'paid', 'confirm'])
+                    ->lockForUpdate()
+                    ->sum('order_details.qty');
+
+                if (($alreadyPurchasedQty + $requestedQty) > $userLimit) {
+                    throw ValidationException::withMessages([
+                        'items' => sprintf(
+                            'Limit pembelian untuk event ini adalah %d tiket per user. Kamu sudah membeli %d tiket.',
+                            $userLimit,
+                            $alreadyPurchasedQty
+                        ),
+                    ]);
+                }
+            }
 
             $ticketIds = $items->keys()->map(fn ($v) => (int) $v)->values();
 
